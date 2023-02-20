@@ -1,9 +1,8 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-//import App from '../App';
-//import LogInScreen from '../src/screens/Login';
+import LogInScreen from '../src/screens/Login';
 
 test('renders correctly', () => {
-  const tree = renderer.create(<App />).toJSON();
+  const tree = renderer.create(<LogInScreen />).toJSON();
   expect(tree).toMatchSnapshot();
 });

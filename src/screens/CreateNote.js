@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,32 +11,42 @@ import {
 //import {useBottomSheet} from '@gorhom/bottom-sheet';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-//import AntDesign from 'react-native-vector-icons/AntDesign';
-//import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import pageStyles from '../utility/global.style';
-import firestore from '@react-native-firebase/firestore';
+import {addNote, updateNoteData} from '../services/NoteServices';
+import {AuthContext} from '../navigation/AuthProvider';
 //import {BottomSheet} from '@gorhom/bottom-sheet';
-import { AuthContext } from '../navigation/AuthProvider';
 
-const CreateNote = ({navigation}) => {
-  //const [state, setState] = useState('');
+const CreateNote = ({navigation, route}) => {
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [pinned, setPinned] = useState(false);
+  const [archive, setArchive] = useState(false);
   //const {expand} = useBottomSheet();
   const [visible, setVisible] = useState(false);
   const {user} = useContext(AuthContext);
 
-  const onPressBack = () => {
-    firestore()
-      .collection('Users')
-      .add({
-        title,
-        note,
-      })
-      .then(() => {
-        console.log('Data added!');
-      });
-      navigation.goBack();
+  useEffect(() => {
+    if (noteData?.editdata?.title !== '') {
+      setTitle(noteData?.editdata?.title);
+    }
+    if (noteData?.editdata?.note !== '') {
+      setNote(noteData?.editdata?.note);
+    }
+    if (noteData?.editdata?.pinned) {
+      setPinned(noteData?.editdata?.pinned);
+    }
+  },[]);
+
+  const noteData = route.params;
+  const obtainedID = noteData?.noteId;
+
+  const onPressBack = async () => {
+    if (obtainedID) {
+      await updateNoteData(title, note, pinned, user, obtainedID);
+    } else {
+      await addNote(title, note, pinned, user);
+    }
+    navigation.goBack();
   };
 
   return (
@@ -50,18 +61,36 @@ const CreateNote = ({navigation}) => {
             <Icons
               name="arrow-left"
               size={25}
-              style={{padding: 10, paddingLeft: 20}}
+              style={{padding: 10, paddingLeft: 10}}
               color={'white'}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={{marginLeft: 180}} onPress={{}}>
-            <Icons name="pin-outline" size={25} color={'white'} />
+          <TouchableOpacity
+            style={{marginLeft: 180}}
+            onPress={() => {
+              setPinned(!pinned);
+            }}>
+            <Icons
+              name={pinned ? 'pin' : 'pin-outline'}
+              size={25}
+              color={'white'}
+            />
           </TouchableOpacity>
-          <TouchableOpacity onPress={{}} style={{marginLeft: 20}}>
+          <TouchableOpacity onPress={null} style={{marginLeft: 20}}>
             <Icons name="bell-plus-outline" size={25} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={{}} style={{marginLeft: 20}}>
-            <Ionicons name="archive-outline" size={25} color={{}} />
+          <TouchableOpacity
+            onPress={() => {
+              setArchive(!archive);
+            }}
+            style={{marginLeft: 20}}>
+            <Icons
+              name={
+                archive ? 'archive-arrow-down' : 'archive-arrow-down-outline'
+              }
+              size={25}
+              color={{}}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -83,7 +112,7 @@ const CreateNote = ({navigation}) => {
           <View>
             <TextInput
               style={{
-                fontSize: 25,
+                fontSize: 20,
                 margin: 10,
               }}
               value={note}
@@ -108,46 +137,24 @@ const CreateNote = ({navigation}) => {
             flexDirection: 'row',
           }}>
           <TouchableOpacity onPress={null} style={{marginRight: 15}}>
-            <Icons name="plus-box-outline" size={25} />
+            <Icons name="plus-box-outline" size={20} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={null} style={{marginLeft: 15}}>
-            <Ionicons name="color-palette-outline" size={25} />
+            <Ionicons name="color-palette-outline" size={20} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={{}}>
-          <Text style={{fontSize: 25}}>Edited </Text>
+          <Text style={{fontSize: 20}}>Edited </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => {
             setVisible(!visible);
           }}>
-          <Icons name="dots-vertical" size={25} />
+          <Icons name="dots-vertical" size={20} />
         </TouchableOpacity>
       </View>
-      {/* <BottomSheet>
-        <View>
-          <TouchableOpacity onPress={null}>
-            <View style={{}}>
-              <AntDesign name="delete" size={25} color={{}} />
-              <Text style={{}}>Delete</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={null}>
-            <View style={{}}>
-              <SimpleLineIcons name="share" size={25} color={{}} />
-              <Text style={{}}>Share</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={null}>
-            <View style={{}}>
-              <Icons name="label-outline" />
-              <Text style={{}}>Labels</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </BottomSheet> */}
     </View>
   );
 };

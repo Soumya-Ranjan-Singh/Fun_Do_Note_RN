@@ -15,6 +15,7 @@ const RegistrationScreen = ({navigation}) => {
   const [errors, setErrors] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [confirmTextEntry, setConfirmTextEntry] = useState(true);
+  const photo = null;
   console.log(errors);
 
   const validate = () => {
@@ -70,7 +71,7 @@ const RegistrationScreen = ({navigation}) => {
 
   const onSubmit = () => {
     if (validate()) {
-      register(email, password, setCatchError);
+      register(email, password, setCatchError,userName,photo);
     }
   };
 

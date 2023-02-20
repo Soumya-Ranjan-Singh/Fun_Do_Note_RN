@@ -1,8 +1,7 @@
 import React, {createContext, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {AddUser} from '../services/UserServices';
-import firestore from '@react-native-firebase/firestore';
+import {addUserSignUp} from '../services/UserServices';
 
 export const AuthContext = createContext();
 
@@ -25,15 +24,14 @@ export const AuthProvider = ({children}) => {
             errorCallback(e.code);
           }
         },
-        register: async (email, password, errorCallback) => {
+        register: async (email, password, errorCallback, userName, photo) => {
           try {
             const userDetails = await auth().createUserWithEmailAndPassword(
               email,
               password,
             );
             console.log(userDetails);
-            //AddUser(userDetails);
-            await firestore().collection('Profile Details').doc(userDetails.user.uid).set({email});
+            addUserSignUp(email, userName, photo, userDetails.user.uid);
           } catch (e) {
             console.log(e);
             errorCallback(e.code);
