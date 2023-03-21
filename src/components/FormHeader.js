@@ -1,12 +1,13 @@
 import React from 'react';
 import {View, Image, Text, StyleSheet} from 'react-native';
 import {Height, Width, Font, Color, Margin} from '../utility/Theme';
+import { stringConstants } from '../utility/Strings';
 
 const FormHeader = () => {
   return (
     <View style={styles.header}>
       <Image style={styles.img} source={require('../assets/logo/Logo5.png')} />
-      <Text style={styles.header_text}>Fun-Do-Notes</Text>
+      <Text style={styles.header_text}>{stringConstants.appname}</Text>
     </View>
   );
 };
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
   },
   header_text: {
     fontFamily: 'sans-serif',
-    fontSize: Font.PRIMARY,
+    fontSize: Font.LARGE,
     color: Color.HEADING_TEXT,
     fontWeight: 'bold',
     marginBottom: Margin.HEADER_TEXT_BOTTOM,

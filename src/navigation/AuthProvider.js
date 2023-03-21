@@ -2,6 +2,7 @@ import React, {createContext, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {addUserSignUp} from '../services/UserServices';
+import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 
 export const AuthContext = createContext();
 
@@ -12,6 +13,7 @@ export const AuthProvider = ({children}) => {
       value={{
         user,
         setUser,
+
         login: async (email, password, errorCallback) => {
           try {
             const userDetails = await auth().signInWithEmailAndPassword(
@@ -21,9 +23,10 @@ export const AuthProvider = ({children}) => {
             console.log(userDetails);
           } catch (e) {
             console.log(e);
-            errorCallback(e.code);
+            errorCallback(e);
           }
         },
+
         register: async (email, password, errorCallback, userName, photo) => {
           try {
             const userDetails = await auth().createUserWithEmailAndPassword(
@@ -37,20 +40,22 @@ export const AuthProvider = ({children}) => {
             errorCallback(e.code);
           }
         },
+
         logout: async errorCallback => {
           try {
-            const userDetails = await auth().signOut();
-            console.log(userDetails);
+            await auth().signOut();
           } catch (e) {
             console.log(e);
             errorCallback(e.code);
           }
         },
+
         googleLogin: async errorCallback => {
           try {
             // Check if your device supports Google Play
-            const userDetails = await GoogleSignin.signIn();
-            console.log(userDetails);
+            await GoogleSignin.hasPlayServices({
+              showPlayServicesUpdateDialog: true,
+            });
 
             // Get the users ID token
             const {idToken} = await GoogleSignin.signIn();
@@ -66,6 +71,47 @@ export const AuthProvider = ({children}) => {
             errorCallback(e.code);
           }
         },
+
+        fbLogin: async errorCallback => {
+          try {
+            const result = await LoginManager.logInWithPermissions([
+              'public_profile',
+              'email',
+            ]);
+
+            if (result.isCancelled) {
+              throw 'User cancelled the login process';
+            }
+
+            // Once signed in, get the users AccesToken
+            const data = await AccessToken.getCurrentAccessToken();
+
+            if (!data) {
+              throw 'Something went wrong obtaining access token';
+            }
+
+            // Create a Firebase credential with the AccessToken
+            const facebookCredential = auth.FacebookAuthProvider.credential(
+              data.accessToken,
+            );
+
+            // Sign-in the user with the credential
+            return auth().signInWithCredential(facebookCredential);
+          } catch (e) {
+            console.log(e);
+            errorCallback(e);
+          }
+        },
+
+        signOut: async () => {
+          try {
+            const currentUser = await GoogleSignin.getCurrentUser();
+            await GoogleSignin.signOut(currentUser);
+          } catch (error) {
+            console.error(error);
+          }
+        },
+
         forgotPassword: async (email, errorCallback) => {
           try {
             await auth().sendPasswordResetEmail(email);
@@ -73,6 +119,7 @@ export const AuthProvider = ({children}) => {
             console.log(e);
           }
         },
+
         resetPassword: async (code, newPassword, errorCallback) => {
           try {
             await auth().confirmPasswordReset(code, newPassword);

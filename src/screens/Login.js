@@ -9,37 +9,19 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-// import {
-//   widthPercentageToDP as wp,
-//   heightPercentageToDP as hp,
-//   listenOrientationChange as lor,
-//   removeOrientationListener as rol,
-// } from 'react-native-responsive-screen';
+import stringsOfLanguages from '../utility/localization/Translation';
+import {useSelector} from 'react-redux';
+import {SocialIcon} from 'react-native-elements';
 
 const LogInScreen = ({navigation}) => {
-  const {login, googleLogin} = useContext(AuthContext);
+  const {login, googleLogin, fbLogin} = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-  // const [customAlert, setCustomAlert] = useState(false);
-  // const [state, setState] = useState(null);
+  const changeLang = useSelector(state => state.toggle);
+
   console.log(errors);
-
-  // if (setState == null) {
-  //   setState(wp < hp ? 'portrait' : 'landscape');
-  // } else {
-  //   setState({
-  //     orientation: wp < hp ? 'portrait' : 'landscape',
-  //   });
-  // }
-
-  // useEffect(() => {
-  //   lor(setState);
-  //   return () => {
-  //     rol();
-  //   };
-  // }, []);
 
   const validate = () => {
     let emailRegex = /^[\w-\\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -73,24 +55,12 @@ const LogInScreen = ({navigation}) => {
     }
   };
 
-  // const CustomAlert = () => {
-  //   customAlert
-  //     ? errors.alert
-  //       ? Alert.alert('Social Sign In Error', `${errors.alert}`, [
-  //           {
-  //             text: 'OK',
-  //             onPress: () => {
-  //               console.log('OK Pressed');
-  //             },
-  //           },
-  //         ])
-  //       : null
-  //     : null;
-  // };
-
-  const onSocialBtnSubmit = () => {
+  const onGoogleBtnSubmit = () => {
     googleLogin(setSocialCatchError);
-    // setCustomAlert(!customAlert);
+  };
+
+  const onFBBtnSubmit = () => {
+    fbLogin(setSocialCatchError);
   };
 
   const updateSecureTextEntry = () => {
@@ -131,7 +101,11 @@ const LogInScreen = ({navigation}) => {
       <FormHeader />
       <View style={pageStyles.body}>
         <FormUserInput
-          placeholder={'Email'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.email
+              : stringsOfLanguages._props.hn.email
+          }
           autoComplete={'email'}
           onChangeText={text => setEmail(text)}
           value={email}
@@ -139,7 +113,11 @@ const LogInScreen = ({navigation}) => {
           errorText={errors.mail}
         />
         <FormPasswordInput
-          placeholder={'Password'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.password
+              : stringsOfLanguages._props.hn.password
+          }
           autoComplete={'current-password'}
           onChangeText={text => setPassword(text)}
           value={password}
@@ -151,26 +129,47 @@ const LogInScreen = ({navigation}) => {
           onPress={() => {
             navigation.navigate('Forgot Password ?');
           }}
-          textName={'Forgot Password?'}
+          textName={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.forgotpassword
+              : stringsOfLanguages._props.hn.forgotpassword
+          }
         />
         <View style={pageStyles.body_btn}>
           <FormButton
-            name={'Sign Up'}
+            name={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.signup
+                : stringsOfLanguages._props.hn.signup
+            }
             onSubmit={() => {
               navigation.navigate('SignUp');
             }}
           />
-          <FormButton name={'Sign In'} onSubmit={onSubmit} />
+          <FormButton
+            name={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.signin
+                : stringsOfLanguages._props.hn.signin
+            }
+            onSubmit={onSubmit}
+          />
         </View>
         <View style={pageStyles.social_btn_view}>
           <GoogleSigninButton
             style={pageStyles.social_btn}
             size={GoogleSigninButton.Size.Wide}
             color={GoogleSigninButton.Color.Dark}
-            onPress={onSocialBtnSubmit}
+            onPress={onGoogleBtnSubmit}
+          />
+          <SocialIcon
+            title="Sign In With Facebook"
+            button
+            type="facebook"
+            onPress={onFBBtnSubmit}
+            style={pageStyles.fb_btn}
           />
         </View>
-        {/* <CustomAlert /> */}
       </View>
     </ScrollView>
   );

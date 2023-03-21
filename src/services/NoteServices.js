@@ -1,15 +1,14 @@
 import firestore from '@react-native-firebase/firestore';
 
-export const addNote = async (title, note, pinned, user) => {
+export const addNote = async (user, noteID, newNoteData) => {
   try {
     await firestore()
       .collection('UserDetails')
       .doc(user.uid)
       .collection('Notes')
-      .add({
-        title: title,
-        note: note,
-        pinned: pinned,
+      .doc(noteID)
+      .set({
+        ...newNoteData,
       });
 
     console.log('Data added!');
@@ -26,21 +25,20 @@ export const fetchNoteData = async user => {
       .doc(user.uid)
       .collection('Notes')
       .get();
-    // console.log(user.uid);
-    // console.log(querySnapshot.size, 'Doc exist?');
     querySnapshot.forEach(documentSnapshot => {
-      // console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
       const data = documentSnapshot.data();
       data.id = documentSnapshot.id;
       array.push(data);
     });
+
+    console.log('Data fetched!');
     return array;
   } catch (e) {
     console.log(e);
   }
 };
 
-export const updateNoteData = async (title, note, pinned, user, obtainedID) => {
+export const updateNoteData = async (user, obtainedID, newNoteData) => {
   try {
     await firestore()
       .collection('UserDetails')
@@ -48,12 +46,25 @@ export const updateNoteData = async (title, note, pinned, user, obtainedID) => {
       .collection('Notes')
       .doc(obtainedID)
       .update({
-        title: title,
-        note: note,
-        pinned: pinned,
+        ...newNoteData,
       });
-    // console.log(user.uid);
-    // console.log(obtainedID);
+
+    console.log('Data updated!');
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const deleteNoteData = async (user, obtainedID) => {
+  try {
+    await firestore()
+      .collection('UserDetails')
+      .doc(user.uid)
+      .collection('Notes')
+      .doc(obtainedID)
+      .delete();
+
+    console.log('Data Deleted!');
   } catch (e) {
     console.log(e);
   }

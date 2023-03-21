@@ -5,6 +5,8 @@ import FormHeader from '../components/FormHeader';
 import {FormUserInput, FormPasswordInput} from '../components/FormInput';
 import {ScrollView, View} from 'react-native';
 import {AuthContext} from '../navigation/AuthProvider';
+import stringsOfLanguages from '../utility/localization/Translation';
+import {useSelector} from 'react-redux';
 
 const RegistrationScreen = ({navigation}) => {
   const {register} = useContext(AuthContext);
@@ -15,6 +17,7 @@ const RegistrationScreen = ({navigation}) => {
   const [errors, setErrors] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [confirmTextEntry, setConfirmTextEntry] = useState(true);
+  const changeLang = useSelector(state => state.toggle);
   const photo = null;
   console.log(errors);
 
@@ -71,7 +74,7 @@ const RegistrationScreen = ({navigation}) => {
 
   const onSubmit = () => {
     if (validate()) {
-      register(email, password, setCatchError,userName,photo);
+      register(email, password, setCatchError, userName, photo);
     }
   };
 
@@ -88,7 +91,11 @@ const RegistrationScreen = ({navigation}) => {
       <FormHeader />
       <View style={pageStyles.body}>
         <FormUserInput
-          placeholder={'Username'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.username
+              : stringsOfLanguages._props.hn.username
+          }
           autoComplete={'username'}
           onChangeText={text => setUserName(text)}
           value={userName}
@@ -96,7 +103,11 @@ const RegistrationScreen = ({navigation}) => {
           errorText={errors.user}
         />
         <FormUserInput
-          placeholder={'Email'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.email
+              : stringsOfLanguages._props.hn.email
+          }
           autoComplete={'email'}
           onChangeText={text => setEmail(text)}
           value={email}
@@ -104,7 +115,11 @@ const RegistrationScreen = ({navigation}) => {
           errorText={errors.mail}
         />
         <FormPasswordInput
-          placeholder={'Password'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.password
+              : stringsOfLanguages._props.hn.password
+          }
           onChangeText={text => setPassword(text)}
           value={password}
           secureTextEntry={secureTextEntry}
@@ -112,7 +127,11 @@ const RegistrationScreen = ({navigation}) => {
           errorText={errors.pass}
         />
         <FormPasswordInput
-          placeholder={'Confirm'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.confirmpass
+              : stringsOfLanguages._props.hn.confirmpass
+          }
           onChangeText={text => setConfirmPassword(text)}
           value={confirmPassword}
           secureTextEntry={confirmTextEntry}
@@ -121,12 +140,23 @@ const RegistrationScreen = ({navigation}) => {
         />
         <View style={pageStyles.body_btn}>
           <FormButton
-            name={'Sign In'}
+            name={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.signin
+                : stringsOfLanguages._props.hn.signin
+            }
             onSubmit={() => {
               navigation.goBack();
             }}
           />
-          <FormButton name={'Register'} onSubmit={onSubmit} />
+          <FormButton
+            name={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.register
+                : stringsOfLanguages._props.hn.register
+            }
+            onSubmit={onSubmit}
+          />
         </View>
       </View>
     </ScrollView>

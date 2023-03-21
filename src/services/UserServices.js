@@ -1,34 +1,46 @@
 import firestore from '@react-native-firebase/firestore';
 
-export const addUserSignUp = async (email,name,photo,user) => {
+export const addUserSignUp = async (email, name, photo, user) => {
+  try {
     await firestore()
       .collection('Profile Details')
       .doc(user)
-      .set({email,name,photo});
-  };
+      .set({email, name, photo});
 
-export const fetchUserData = async user => {
-  const array = [];
-    const documentSnapshot = await firestore()
-    .collection('Profile Details')
-    .doc(user.uid)
-    .get();
-    console.log(user.uid);
-    console.log(documentSnapshot.exists, 'Doc exist?');
-    console.log('User data: ', documentSnapshot.data());
-    const name = documentSnapshot.data().name;
-    const image = documentSnapshot.data().photo;
-    //console.log(name);
-    //console.log(image);
-    array.push(name);
-    array.push(image);
-    //console.log(array);
-    return array;
+    console.log('User added successfully!');
+  } catch (e) {
+    console.log(e);
+  }
 };
 
-export const updateUserData = async (user,photo) => {
-  await firestore()
-    .collection('Profile Details')
-    .doc(user.uid)
-    .update({photo});
+export const fetchUserData = async user => {
+  try {
+    const array = [];
+    const documentSnapshot = await firestore()
+      .collection('Profile Details')
+      .doc(user.uid)
+      .get();
+    const name = documentSnapshot.data().name;
+    const image = documentSnapshot.data().photo;
+    array.push(name);
+    array.push(image);
+
+    console.log('User Details fetched!');
+    return array;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const updateUserData = async (user, photo) => {
+  try {
+    await firestore()
+      .collection('Profile Details')
+      .doc(user.uid)
+      .update({photo});
+
+    console.log('User Details Updated!');
+  } catch (e) {
+    console.log(e);
+  }
 };

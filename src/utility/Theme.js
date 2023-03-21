@@ -13,16 +13,17 @@ export const Color = {
 };
 
 export const Font = {
-  PRIMARY: hp('5%'),
-  SECONDARY: hp('2%'),
-  LARGE: hp('2.5%'),
+  LARGE: 35,
+  PRIMARY: 20,
+  SECONDARY: 15,
+  TERNARY: 25,
 };
 
 export const Size = {
   FLEX: 1,
-  ICON_SMALL: hp('2.25%'),
-  ICON_MEDIUM: hp('2.5%'),
-  ICON_LARGE: hp('3%'),
+  ICON_SMALL: 15,
+  ICON_MEDIUM: 20,
+  ICON_LARGE: 25,
   TOPBAR_ICON: hp('5%'),
   EMPTY_ICON: hp('3%'),
   NOTE: hp('2.25%'),

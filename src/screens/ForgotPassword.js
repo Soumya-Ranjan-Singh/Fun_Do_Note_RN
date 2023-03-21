@@ -11,8 +11,10 @@ import {ScrollView, View, Text, StyleSheet} from 'react-native';
 import {Alert} from 'react-native/Libraries/Alert/Alert';
 import {Color, Font, Margin} from '../utility/Theme';
 import {AuthContext} from '../navigation/AuthProvider';
+import stringsOfLanguages from '../utility/localization/Translation';
+import {useSelector} from 'react-redux';
 
-const ForgotPasswordScreen = ({navigation}) => {
+const ForgotPasswordScreen = () => {
   const {forgotPassword, resetPassword} = useContext(AuthContext);
   const [otp, setOtp] = useState('');
   const [email, setEmail] = useState('');
@@ -25,6 +27,7 @@ const ForgotPasswordScreen = ({navigation}) => {
   const [confirmTextEntry, setConfirmTextEntry] = useState(true);
   const [shouldShow, setShouldShow] = useState(false);
   const [shouldShowPass, setShouldShowPass] = useState(false);
+  const changeLang = useSelector(state => state.toggle);
   console.log(errors);
 
   const validateEmail = () => {
@@ -113,7 +116,11 @@ const ForgotPasswordScreen = ({navigation}) => {
       <FormHeader />
       <View style={pageStyles.body}>
         <FormUserInput
-          placeholder={'Email'}
+          placeholder={
+            changeLang === 'English'
+              ? stringsOfLanguages._props.en.email
+              : stringsOfLanguages._props.hn.email
+          }
           autoComplete={'email'}
           onChangeText={text => setEmail(text)}
           value={email}
@@ -122,7 +129,11 @@ const ForgotPasswordScreen = ({navigation}) => {
         />
         <View style={pageStyles.body_btn}>
           <FormButton
-            name={'Send OTP'}
+            name={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.sendotp
+                : stringsOfLanguages._props.hn.sendotp
+            }
             onSubmit={onSubmit}
             disabled={disabled ? true : false}
           />
@@ -130,28 +141,51 @@ const ForgotPasswordScreen = ({navigation}) => {
         {shouldShow ? (
           <>
             <FormOTPInput
-              placeholder={'OTP'}
+              placeholder={
+                changeLang === 'English'
+                  ? stringsOfLanguages._props.en.otp
+                  : stringsOfLanguages._props.hn.otp
+              }
               onChangeText={text => setOtp(text)}
               value={otp}
               errorText={errors.otp}
             />
             <View style={pageStyles.body_btn}>
               <FormButton
-                name={'Validate'}
+                name={
+                  changeLang === 'English'
+                    ? stringsOfLanguages._props.en.validate
+                    : stringsOfLanguages._props.hn.validate
+                }
                 onSubmit={onSubmitOTP}
                 disabled={validateDisabled ? true : false}
               />
             </View>
             <View style={pageStyles.body_btn}>
-              <Text style={styles.text}>Don't have the OTP?</Text>
-              <FormTextButton textName={'Resend!!'} onSubmit={Alert} />
+              <Text style={styles.text}>
+                {changeLang === 'English'
+                  ? stringsOfLanguages._props.en.otpfailing
+                  : stringsOfLanguages._props.hn.otpfailing}
+              </Text>
+              <FormTextButton
+                textName={
+                  changeLang === 'English'
+                    ? stringsOfLanguages._props.en.resend
+                    : stringsOfLanguages._props.hn.resend
+                }
+                onSubmit={Alert}
+              />
             </View>
           </>
         ) : null}
         {shouldShowPass ? (
           <>
             <FormPasswordInput
-              placeholder={'Password'}
+              placeholder={
+                changeLang === 'English'
+                  ? stringsOfLanguages._props.en.password
+                  : stringsOfLanguages._props.hn.password
+              }
               onChangeText={text => setPassword(text)}
               value={password}
               secureTextEntry={secureTextEntry}
@@ -159,7 +193,11 @@ const ForgotPasswordScreen = ({navigation}) => {
               errorText={errors.pass}
             />
             <FormPasswordInput
-              placeholder={'Confirm'}
+              placeholder={
+                changeLang === 'English'
+                  ? stringsOfLanguages._props.en.confirmpass
+                  : stringsOfLanguages._props.hn.confirmpass
+              }
               onChangeText={text => setConfirmPassword(text)}
               value={confirmPassword}
               secureTextEntry={confirmTextEntry}
@@ -167,7 +205,14 @@ const ForgotPasswordScreen = ({navigation}) => {
               errorText={errors.confirm}
             />
             <View style={pageStyles.body_btn}>
-              <FormButton name={'Validate'} onSubmit={onSubmitPassword} />
+              <FormButton
+                name={
+                  changeLang === 'English'
+                    ? stringsOfLanguages._props.en.validate
+                    : stringsOfLanguages._props.hn.validate
+                }
+                onSubmit={onSubmitPassword}
+              />
             </View>
           </>
         ) : null}

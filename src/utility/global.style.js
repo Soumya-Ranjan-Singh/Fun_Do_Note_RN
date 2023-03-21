@@ -25,6 +25,13 @@ const pageStyles = StyleSheet.create({
     width: Width.SOCIAL_BTN_WIDTH,
     height: Height.SOCIAL_BTN_HEIGHT,
   },
+  fb_btn: {
+    padding: Padding.BUTTON_PADDING,
+    margin: Margin.SOCIAL_BTN,
+    borderRadius: Border.BORDER_RADIUS,
+    width: Width.SOCIAL_BTN_WIDTH,
+    height: Height.BTN_HEIGHT,
+  },
 });
 
 export default pageStyles;

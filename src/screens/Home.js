@@ -1,28 +1,32 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useContext, useEffect} from 'react';
-import {Alert, Platform, View} from 'react-native';
-import CustomModal from '../components/CustomModal';
+import {Alert, Platform, View, StyleSheet} from 'react-native';
+import {ProfileModal, ImageOpenerModal} from '../components/CustomModal';
 import DashBoardTopBar from '../components/DashBoardTopBar';
 import DashBoardBottomBar from '../components/DashBoardBottomBar';
-import ImageOpenerModal from '../components/ImageOpnerModal';
 import {AuthContext} from '../navigation/AuthProvider';
 import ImagePicker from 'react-native-image-crop-picker';
 import {fetchUserData, updateUserData} from '../services/UserServices';
 import storage from '@react-native-firebase/storage';
 import pageStyles from '../utility/global.style';
 import NoteDetails from '../components/NoteDetails';
+import {useDispatch, useSelector} from 'react-redux';
+import {listViewPress} from '../redux/Action';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [innerModal, setInnerModal] = useState(false);
   const {user, logout} = useContext(AuthContext);
-  const [imageFile, setImageFile] = useState();
-  const [listView, setListView] = useState(false);
+  const [imageFile, setImageFile] = useState('');
+  // const [listView, setListView] = useState(false);
+  //const [isLongPress, setIsLongPress] = useState(false);
   const [userName, setUserName] = useState();
   const photoDetails = user.photoURL;
+  const listView = useSelector(state => state.listView);
+  const dispatch = useDispatch();
 
   const isGoogleSignin = () => {
-    console.log(photoDetails);
+    //console.log(photoDetails);
     if (photoDetails !== null && photoDetails.includes('googleusercontent')) {
       return true;
     } else {
@@ -34,11 +38,17 @@ const Home = ({navigation}) => {
     const uri = props;
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-    console.log(filename);
-    const task = storage().ref(filename).putFile(uploadUri);
-    // set progress state
+    //console.log(uploadUri);
+    await storage()
+      .ref(filename)
+      .putFile(uploadUri)
+      .then(async () => {
+        const url = await storage().ref(filename).getDownloadURL();
+        await AsyncStorage.setItem('PhotoData', url);
+        setImageFile(url);
+        updateUserData(user, url);
+      });
     try {
-      await task.then(downloadImage(filename));
       Alert.alert(
         'Photo uploaded!',
         'Your photo has been uploaded to Firebase Cloud Storage!',
@@ -48,22 +58,14 @@ const Home = ({navigation}) => {
     }
   };
 
-  const downloadImage = async filename => {
-    try {
-      console.log(filename);
-      const url = await storage().ref(filename).getDownloadURL();
-      setImageFile(url);
-      updateUserData(user, imageFile);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   const dataReceiver = async () => {
     try {
       const userdata = await fetchUserData(user);
+      const value = await AsyncStorage.getItem('PhotoData');
+      // console.log(userdata);
+      // console.log(value,'Photo url getting?');
       setUserName(userdata[0]);
-      setImageFile(userdata[1]);
+      value !== null ? setImageFile(value) : setImageFile(userdata[1]);
     } catch (e) {
       console.log(e);
     }
@@ -71,25 +73,12 @@ const Home = ({navigation}) => {
 
   useEffect(() => {
     try {
-      isGoogleSignin();
-      dataReceiver();
+      isGoogleSignin() ? null : dataReceiver();
     } catch (e) {
       console.log(e);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const profilePicChecker = () => {
-    try {
-      if (imageFile === null || photoDetails === null) {
-        return require('../assets/logo/User.png');
-      } else {
-        return {uri: imageFile};
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   const takePhotoFromCamera = () => {
     console.log('Take Photo');
@@ -102,8 +91,6 @@ const Home = ({navigation}) => {
       .then(image => {
         console.log(image);
         uploadImage(image.path);
-        // uploadImage(image.path);
-        // console.log(image.path);
       })
       .catch(e => {
         console.log(e);
@@ -137,23 +124,33 @@ const Home = ({navigation}) => {
         onPressSearchNavigation={() => {
           navigation.navigate('Search');
         }}
-        onPressSetListView={() => {
-          setListView(!listView);
-        }}
+        onPressSetListView={() => dispatch(listViewPress())}
         listView={listView}
         onPressSetModalVisibility={() => {
           setModalVisible(!modalVisible);
         }}
-        source={profilePicChecker()}
+        source={
+          isGoogleSignin()
+            ? {uri: user.photoURL}
+            : !imageFile
+            ? require('../assets/logo/User.png')
+            : {uri: imageFile}
+        }
       />
       <View>
         {modalVisible ? (
-          <CustomModal
+          <ProfileModal
             isGoogleSignin={isGoogleSignin()}
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
-            source={profilePicChecker()}
-            userName={userName}
+            source={
+              isGoogleSignin()
+                ? {uri: user.photoURL}
+                : !imageFile
+                ? require('../assets/logo/User.png')
+                : {uri: imageFile}
+            }
+            userName={isGoogleSignin() ? user.displayName : userName}
             onPressChangeProfilePic={() => setInnerModal(!innerModal)}
             onPressNavigateProfile={() => navigation.navigate('Setting')}
             onPressLogout={() => logout()}
@@ -161,11 +158,12 @@ const Home = ({navigation}) => {
           />
         ) : null}
       </View>
-      <View style={{flex: 2}}>
+      <View style={styles.body}>
         <NoteDetails
           navigation={navigation}
           changeLayout={listView}
-          setChangeLayout={setListView}
+          setChangeLayout={listView}
+          onLongPress={null}
         />
       </View>
       <View>
@@ -202,9 +200,8 @@ const Home = ({navigation}) => {
 
 export default Home;
 
-// const styles = StyleSheet.create({
-//   text: {
-//     fontSize: 20,
-//     color: '#333333',
-//   },
-// });
+const styles = StyleSheet.create({
+  body: {
+    flex: 2,
+  },
+});

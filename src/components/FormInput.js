@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     borderColor: Color.BORDER_COLOR,
     borderRadius: Border.BORDER_RADIUS,
     textAlign: 'left',
-    fontSize: Font.LARGE,
+    fontSize: Font.PRIMARY,
     marginTop: Margin.INPUT_TOP,
     marginBottom: Margin.INPUT_BOTTOM,
     backgroundColor: Color.INPUT_BACKGROUND,

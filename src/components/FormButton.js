@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   btn_text: {
     color: Color.TEXT_COLOR,
-    fontSize: Font.LARGE,
+    fontSize: Font.PRIMARY,
     textAlign: 'center',
     fontWeight: 'bold',
   },
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   forget_text: {
     color: Color.LINK_TEXT,
-    fontSize: Font.LARGE,
+    fontSize: Font.PRIMARY,
     textDecorationLine: 'underline',
   },
 });
