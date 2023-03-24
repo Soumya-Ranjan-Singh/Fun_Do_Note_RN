@@ -1,5 +1,5 @@
 import MathJax from 'react-native-mathjax';
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -8,9 +8,8 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import {AuthContext} from '../navigation/AuthProvider';
-import {fetchNoteData} from '../services/NoteServices';
 import pageStyles from '../utility/global.style';
+import SQLite from 'react-native-sqlite-storage';
 
 const mmlOptions = {
   messageStyle: 'none',
@@ -37,11 +36,11 @@ const mmlOptions = {
   },
 };
 
-const NoteCard = props => {
+const NoteCard = ({...item}) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{props.title}</Text>
-      <MathJax mathJaxOptions={mmlOptions} html={props.note} />
+      <Text style={styles.text}>{item.title}</Text>
+      <MathJax mathJaxOptions={mmlOptions} html={item.note} />
     </View>
   );
 };
@@ -49,32 +48,50 @@ const NoteCard = props => {
 const MathEqn = ({navigation}) => {
   const [eqnArray, setEqnArray] = useState([]);
 
-  const {user} = useContext(AuthContext);
+  const db = SQLite.openDatabase(
+    {
+      name: 'MathEqnDB',
+      location: 'default',
+    },
+    () => {},
+    error => {
+      console.log(error);
+    },
+  );
 
-  const getAllNotes = async () => {
-    const notes = await fetchNoteData(user);
-    let noteArray = [];
-    notes.forEach(element => {
-      if (!element.trash && element.title.includes('Eqn')) {
-        noteArray.push(element);
-      }
+  const goToEditNotes = ({item}) => {
+    navigation.navigate('CreateNote', {
+      editdata: item,
+      noteId: item.id,
     });
-    setEqnArray(noteArray);
   };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      getAllNotes();
+      db.transaction(tx => {
+        tx.executeSql('SELECT * FROM table_note', [], (_tx, results) => {
+          let temp = [];
+          let notesArray = [];
+          for (let i = 0; i < results.rows.length; i++) {
+            temp.push(results.rows.item(i));
+          }
+          temp.forEach(element => {
+            if (element.title.includes('Eqn')) {
+              notesArray.push(element);
+            }
+          });
+          setEqnArray(notesArray);
+        });
+      });
     });
-
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
   return (
     <View style={pageStyles.container}>
-      <View style={{justifyContent: 'center',alignItems: 'center', margin: 20}}>
-        <Text style={{color: 'white',fontSize: 25}}>Math Notes</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTxt}>Math Notes</Text>
       </View>
       <ScrollView>
         <FlatList
@@ -85,7 +102,7 @@ const MathEqn = ({navigation}) => {
             <TouchableOpacity
               style={styles.listLayout}
               onPress={() => {
-                this.goToEditNotes({item});
+                goToEditNotes({item});
               }}>
               <NoteCard {...item} />
             </TouchableOpacity>
@@ -116,5 +133,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 5,
     fontWeight: 'bold',
+  },
+  header: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 20,
+  },
+  headerTxt: {
+    color: 'white',
+    fontSize: 25,
   },
 });

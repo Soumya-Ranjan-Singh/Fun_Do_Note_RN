@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useContext, useCallback} from 'react';
 import {
   TextInput,
@@ -62,13 +61,8 @@ const CreateLabel = ({navigation}) => {
   return (
     <View style={pageStyles.container}>
       <View style={styles.topbar}>
-        <TouchableOpacity onPress={onPressBack}>
-          <Icons
-            name="arrow-left"
-            size={25}
-            color={'white'}
-            style={{padding: 10, paddingLeft: 10}}
-          />
+        <TouchableOpacity style={styles.backBtnIcon} onPress={onPressBack}>
+          <Icons name="arrow-left" size={25} color={'white'} />
         </TouchableOpacity>
         <Text style={styles.editText}>
           {changeLang === 'English'
@@ -86,13 +80,15 @@ const CreateLabel = ({navigation}) => {
             size={30}
           />
         </TouchableOpacity>
-        <View style={{marginLeft: 25}}>
+        <View style={styles.input_container}>
           <TextInput
             value={label}
             onChangeText={text => onChangeText(text)}
-            placeholder={changeLang === 'English'
-            ? stringsOfLanguages._props.en.create
-            : stringsOfLanguages._props.hn.create}
+            placeholder={
+              changeLang === 'English'
+                ? stringsOfLanguages._props.en.create
+                : stringsOfLanguages._props.hn.create
+            }
             placeholderTextColor={'white'}
             style={styles.labelInput}
           />
@@ -101,7 +97,7 @@ const CreateLabel = ({navigation}) => {
           <Ionicons
             name={changeIcon ? null : 'checkmark-outline'}
             size={30}
-            style={{marginLeft: 35}}
+            style={styles.checkBox_icon}
           />
         </TouchableOpacity>
       </View>
@@ -147,5 +143,18 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 17,
     width: 250,
+  },
+
+  backBtnIcon: {
+    padding: 10,
+    paddingLeft: 10,
+  },
+
+  input_container: {
+    marginLeft: 25,
+  },
+
+  checkBox_icon: {
+    marginLeft: 35,
   },
 });

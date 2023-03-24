@@ -29,6 +29,7 @@ import Chip from '../components/Chip';
 import {ReminderModal} from '../components/ReminderModal';
 import PushNotification from 'react-native-push-notification';
 import moment from 'moment';
+import { addNotes,updateNotes,deleteNotes } from '../services/SqliteServices';
 
 const CreateNote = ({navigation, route}) => {
   const noteData = route.params;
@@ -56,7 +57,7 @@ const CreateNote = ({navigation, route}) => {
   const changeLang = useSelector(state => state.toggle);
 
   useEffect(() => {
-    const myFun = (
+    const myFun = async (
       data1 = title,
       data2 = note,
       data3 = pinned,
@@ -80,9 +81,11 @@ const CreateNote = ({navigation, route}) => {
       };
       if (note !== '' || title !== '') {
         if (obtainedID) {
-          updateNoteData(user, obtainedID, newNoteData);
+          await updateNoteData(user, obtainedID, newNoteData);
+          await updateNotes(user.uid,obtainedID,title,note);
         } else {
-          addNote(user, noteID, newNoteData);
+          await addNote(user, noteID, newNoteData);
+          await addNotes(user.uid,noteID,title,note);
         }
         labelsUpdate();
         reminderDate ? handleNotification() : null;
@@ -156,7 +159,7 @@ const CreateNote = ({navigation, route}) => {
       data8 = bcgColor,
       data9 = reminderDate,
     ) =>
-    () => {
+    async () => {
       const newNoteData = {
         title: data1,
         note: data2,
@@ -170,9 +173,11 @@ const CreateNote = ({navigation, route}) => {
       };
       if (note !== '' || title !== '') {
         if (obtainedID) {
-          updateNoteData(user, obtainedID, newNoteData);
+          await updateNoteData(user, obtainedID, newNoteData);
+          await updateNotes(user.uid,obtainedID,title,note);
         } else {
-          addNote(user, noteID, newNoteData);
+          await addNote(user, noteID, newNoteData);
+          await addNotes(user.uid,noteID,title,note);
         }
         labelsUpdate();
         reminderDate ? handleNotification() : null;
@@ -188,7 +193,7 @@ const CreateNote = ({navigation, route}) => {
   };
 
   const onPressPermanentDelete = async () => {
-    await deleteNoteData(user, obtainedID).then(navigation.goBack());
+    await deleteNoteData(user, obtainedID).then(await deleteNotes(obtainedID)).then(navigation.goBack());
   };
 
   const labelsUpdate = async () => {
