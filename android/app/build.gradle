@@ -102,6 +102,7 @@ android {
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
         targetSdkVersion 27
+        multiDexEnabled true
     }
 
     splits {
@@ -159,6 +160,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.3.2'
     implementation project(':react-native-push-notification')
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+    implementation 'com.android.support:multidex:1.0.3'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

@@ -96,7 +96,7 @@ export const AuthProvider = ({children}) => {
             );
 
             // Sign-in the user with the credential
-            return auth().signInWithCredential(facebookCredential);
+            await auth().signInWithCredential(facebookCredential);
           } catch (e) {
             console.log(e);
             errorCallback(e);
